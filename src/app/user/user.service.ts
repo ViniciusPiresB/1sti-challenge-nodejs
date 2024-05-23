@@ -17,4 +17,16 @@ export class UserService {
         return createdUser;
     }
 
+    public async findOne(cpf: string) {
+        const user = await this.getUser(cpf);
+
+        return user;
+    }
+    private getUser(cpf: string) {
+        const user = this.prismaService.user.findUnique({ where: {cpf} });
+
+        if(!user) throw new NotFoundException("User not found.");
+
+        return user;
+    }
 }
