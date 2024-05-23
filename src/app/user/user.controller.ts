@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserUpdateDTO } from "./dto/user-update.dto";
@@ -27,4 +27,8 @@ export class UserController {
         return this.userService.updateUser(cpf, userUpdateDTO)
     }
 
+    @Delete(":cpf")
+    remove(@Param("cpf") cpf: string) {
+        return this.userService.remove(cpf);
+    }
 }
