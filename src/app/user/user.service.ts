@@ -22,6 +22,13 @@ export class UserService {
 
         return user;
     }
+
+    public async findAll() {
+        const users = await this.prismaService.user.findMany();
+
+        return users;
+    }
+
     private getUser(cpf: string) {
         const user = this.prismaService.user.findUnique({ where: {cpf} });
 
