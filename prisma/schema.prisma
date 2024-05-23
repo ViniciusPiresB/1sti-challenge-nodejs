@@ -12,3 +12,36 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        Int       @id @default(autoincrement())
+  cpf       String    @unique
+  name      String
+  birth     DateTime
+  address   Address?
+  addressId Int?
+  status    Status    @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  createdBy String
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
+}
+
+enum Status {
+  ACTIVE
+  DELETED
+}
+
+model Address {
+  id       Int    @id @default(autoincrement())
+  street   String
+  number   String
+  district String
+  city     String
+  state    String
+  cep      String
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int    @unique
+}
