@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
+import { UserUpdateDTO } from "./dto/user-update.dto";
 
 @Controller("user")
 export class UserController {
@@ -20,4 +21,10 @@ export class UserController {
     findOne(@Param("cpf") cpf: string) {
         return this.userService.findOne(cpf);
     }
+
+    @Patch(":cpf")
+    update(@Param("cpf") cpf: string, @Body() userUpdateDTO: UserUpdateDTO) {
+        return this.userService.updateUser(cpf, userUpdateDTO)
+    }
+
 }
