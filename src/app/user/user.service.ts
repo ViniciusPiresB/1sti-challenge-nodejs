@@ -40,6 +40,13 @@ export class UserService {
         return updatedUser;
     }
 
+    public async remove(cpf: string) {
+        await this.getUser(cpf);
+
+        const deletedUser = await this.prismaService.user.delete({ where: { cpf }});
+
+        return deletedUser;
+    }
 
     private getUser(cpf: string) {
         const user = this.prismaService.user.findUnique({ where: {cpf} });
