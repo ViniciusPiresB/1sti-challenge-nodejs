@@ -29,6 +29,18 @@ export class UserService {
         return users;
     }
 
+    public async updateUser(cpf: string, userUpdateDTO: UserUpdateDTO) {
+        await this.getUser(cpf);
+
+        const updatedUser = await this.prismaService.user.update({
+            where: { cpf },
+            data: userUpdateDTO
+        })
+
+        return updatedUser;
+    }
+
+
     private getUser(cpf: string) {
         const user = this.prismaService.user.findUnique({ where: {cpf} });
 
