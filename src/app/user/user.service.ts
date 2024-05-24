@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/database/prisma.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserUpdateDTO } from "./dto/user-update.dto";
+import { User } from "@prisma/client";
+import { UserDTO } from "./dto/user.dto";
 
 @Injectable()
 export class UserService {
@@ -14,19 +16,21 @@ export class UserService {
             data: { ...user, address: { create: address } }
         })
 
-        return createdUser;
+        return this.convertToUserDTO(createdUser);
     }
 
     public async findOne(cpf: string) {
         const user = await this.getUser(cpf);
 
-        return user;
+        return this.convertToUserDTO(user);
     }
 
     public async findAll() {
         const users = await this.prismaService.user.findMany();
 
-        return users;
+        const usersDTO = users.map(user => { return this.convertToUserDTO(user) });
+
+        return usersDTO;
     }
 
     public async updateUser(cpf: string, userUpdateDTO: UserUpdateDTO) {
@@ -37,7 +41,7 @@ export class UserService {
             data: userUpdateDTO
         })
 
-        return updatedUser;
+        return this.convertToUserDTO(updatedUser);
     }
 
     public async remove(cpf: string) {
@@ -54,5 +58,13 @@ export class UserService {
         if(!user) throw new NotFoundException("User not found.");
 
         return user;
+    }
+
+    private convertToUserDTO(user: User) {
+        const { id, cpf, name, birth, status } = user;
+
+        const userDTO: UserDTO = { id, cpf, name, birth, status };
+
+        return userDTO;
     }
 }
