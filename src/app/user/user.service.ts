@@ -56,11 +56,16 @@ export class UserService {
     }
 
     public async remove(cpf: string) {
-        await this.getUser(cpf);
+        const user = await this.getUser(cpf);
 
-        const deletedUser = await this.prismaService.user.delete({ where: { cpf }});
+        const date = new Date().toISOString();
 
-        return deletedUser;
+        const deletedUser = await this.prismaService.user.update({
+            where: user,
+            data: { status: Status.DELETED, deletedAt: date, deletedBy: "FAZER AQUI JWT" }
+        })
+
+        return this.convertToUserDTO(deletedUser);
     }
 
     private getUser(cpf: string) {
