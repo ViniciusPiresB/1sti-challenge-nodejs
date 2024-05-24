@@ -1,4 +1,5 @@
 import { PrismaService } from "../../database/prisma.service";
+import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserService } from "./user.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Status, User } from "@prisma/client";
@@ -112,5 +113,34 @@ describe("UserService", () => {
   it("Should be defined", () => {
     expect(userService).toBeDefined();
     expect(prismaService).toBeDefined();
+  });
+
+  describe("create", () => {
+    it("Should create an user successfully", async () => {
+      const userToBeCreated: UserCreateDTO = {
+        cpf: "70031242546",
+        name: "Test User 1",
+        birth: new Date(),
+        address: {
+          street: "Rua 4",
+          number: "4",
+          district: "Boa Vista",
+          city: "São Paulo",
+          state: "SP",
+          cep: "01046851"
+        },
+        status: "ACTIVE",
+        createdBy: "Admin"
+      };
+
+      const user = await userService.create(userToBeCreated);
+
+      expect(user.id).toBeDefined();
+      expect(user.cpf).toEqual(userToBeCreated.cpf);
+      expect(user.name).toEqual(userToBeCreated.name);
+      expect(user.birth).toBeInstanceOf(Date);
+      expect(user.status).toEqual(Status.ACTIVE);
+      expect(prismaService.user.create).toHaveBeenCalledTimes(1);
+    });
   });
 });
