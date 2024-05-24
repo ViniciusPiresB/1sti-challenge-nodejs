@@ -4,6 +4,7 @@ import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserCreateDTO } from "./dto/user-create.dto";
+import { UserUpdateDTO } from "./dto/user-update.dto";
 
 describe("UserController", () => {
   let userController: UserController;
@@ -112,6 +113,27 @@ describe("UserController", () => {
       expect(result).toEqual({ ...fakeUsersDTO[0], cpf });
       expect(userServiceMock.findOne).toHaveBeenCalledWith(cpf);
       expect(userServiceMock.findOne).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("updateUser", () => {
+    it("Should update a user", async () => {
+      const cpf = fakeUsersDTO[0].cpf;
+
+      const userUpdateDTO: UserUpdateDTO = {
+        name: "Updated User",
+        birth: new Date(),
+        updatedBy: "Admin"
+      };
+
+      const result = await userController.update(cpf, userUpdateDTO);
+
+      expect(result).toEqual({ ...fakeUsersDTO[0], ...userUpdateDTO });
+      expect(userServiceMock.updateUser).toHaveBeenCalledWith(
+        cpf,
+        userUpdateDTO
+      );
+      expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
     });
   });
 });
