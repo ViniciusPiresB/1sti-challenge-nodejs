@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/database/prisma.service";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../../database/prisma.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserUpdateDTO } from "./dto/user-update.dto";
+import { Status, User } from "@prisma/client";
+import { UserDTO } from "./dto/user.dto";
 
 @Injectable()
 export class UserService {
@@ -14,45 +16,73 @@ export class UserService {
             data: { ...user, address: { create: address } }
         })
 
-        return createdUser;
+        return this.convertToUserDTO(createdUser);
     }
 
     public async findOne(cpf: string) {
         const user = await this.getUser(cpf);
 
-        return user;
+        return this.convertToUserDTO(user);
     }
 
     public async findAll() {
         const users = await this.prismaService.user.findMany();
 
-        return users;
+        const activeUsers = users.filter(user => { 
+            if(user.status == Status.ACTIVE) return true;
+
+            return false;
+         });
+
+        if(!activeUsers) return [];
+
+        const usersDTO = activeUsers.map(user => { return this.convertToUserDTO(user) });
+
+        return usersDTO;
     }
 
     public async updateUser(cpf: string, userUpdateDTO: UserUpdateDTO) {
-        await this.getUser(cpf);
+        const user = await this.getUser(cpf);
 
         const updatedUser = await this.prismaService.user.update({
-            where: { cpf },
-            data: userUpdateDTO
+            where: user,
+            data: {
+                ...userUpdateDTO,
+                updatedAt: new Date().toISOString()
+            }
         })
 
-        return updatedUser;
+        return this.convertToUserDTO(updatedUser);
     }
 
     public async remove(cpf: string) {
-        await this.getUser(cpf);
+        const user = await this.getUser(cpf);
 
-        const deletedUser = await this.prismaService.user.delete({ where: { cpf }});
+        const date = new Date().toISOString();
 
-        return deletedUser;
+        const deletedUser = await this.prismaService.user.update({
+            where: user,
+            data: { status: Status.DELETED, deletedAt: date, deletedBy: "FAZER AQUI JWT" }
+        })
+
+        return this.convertToUserDTO(deletedUser);
     }
 
-    private getUser(cpf: string) {
-        const user = this.prismaService.user.findUnique({ where: {cpf} });
+    private async getUser(cpf: string) {
+        const user = await this.prismaService.user.findUnique({ where: {cpf} });
 
         if(!user) throw new NotFoundException("User not found.");
 
+        if(user.status == Status.DELETED) throw new BadRequestException("User deleted.");
+
         return user;
+    }
+
+    private convertToUserDTO(user: User) {
+        const { id, cpf, name, birth, status } = user;
+
+        const userDTO: UserDTO = { id, cpf, name, birth, status };
+
+        return userDTO;
     }
 }
