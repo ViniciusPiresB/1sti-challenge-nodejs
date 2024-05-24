@@ -142,4 +142,13 @@ describe("UserService", () => {
       expect(prismaService.user.create).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("findAll", () => {
+    it("Should list all users successfully", async () => {
+      const users = await userService.findAll();
+
+      expect(users).toEqual(fakeUsers);
+      expect(prismaService.user.findMany).toHaveBeenCalledTimes(1);
+    });
+  });
 });
