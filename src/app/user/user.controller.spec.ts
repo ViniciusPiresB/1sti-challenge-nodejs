@@ -37,7 +37,7 @@ describe("UserController", () => {
     create: jest.fn((userCreateDTO) => {
       return { id: Date.now(), ...userCreateDTO };
     }),
-    findAll: jest.fn().mockResolvedValue([]),
+    findAll: jest.fn().mockResolvedValue(fakeUsersDTO),
     findOne: jest.fn((cpf) => {
       return { ...fakeUsersDTO[0], cpf };
     }),
@@ -89,7 +89,17 @@ describe("UserController", () => {
       const result = await userController.create(fakeUserCreateDTO);
 
       expect(result).toEqual({ id: expect.any(String), ...fakeUserCreateDTO });
-      expect(userService.create).toHaveBeenCalledWith(fakeUserCreateDTO);
+      expect(userServiceMock.create).toHaveBeenCalledWith(fakeUserCreateDTO);
+      expect(userServiceMock.create).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("findAll", () => {
+    it("Should list all users", async () => {
+      const result = await userController.findAll();
+
+      expect(result).toEqual(fakeUsersDTO);
+      expect(userServiceMock.findAll).toHaveBeenCalled();
     });
   });
 });
