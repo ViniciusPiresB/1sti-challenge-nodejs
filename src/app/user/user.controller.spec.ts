@@ -136,4 +136,16 @@ describe("UserController", () => {
       expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("remove", () => {
+    it("Should remove a user", async () => {
+      const cpf = fakeUsersDTO[0].cpf;
+
+      const result = await userController.remove(cpf);
+
+      expect(result).toEqual({ ...fakeUsersDTO[0], status: Status.DELETED });
+      expect(userServiceMock.remove).toHaveBeenCalledWith(cpf);
+      expect(userServiceMock.remove).toHaveBeenCalledTimes(1);
+    });
+  });
 });
