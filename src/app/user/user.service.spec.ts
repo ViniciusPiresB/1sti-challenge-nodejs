@@ -5,6 +5,7 @@ import { UserService } from "./user.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Status, User } from "@prisma/client";
 import { UserDTO } from "./dto/user.dto";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 describe("UserService", () => {
   let userService: UserService;
@@ -55,6 +56,7 @@ describe("UserService", () => {
       create: jest.fn().mockReturnValue(fakeUsers[0]),
       findMany: jest.fn().mockResolvedValue(fakeUsers),
       findFirst: jest.fn().mockResolvedValue(fakeUsers[0]),
+      findUnique: jest.fn().mockResolvedValue(fakeUsers[0]),
       update: jest.fn().mockReturnValue(updatedFakeUser),
       delete: jest.fn().mockResolvedValue(deletedFakeUser)
     }
@@ -149,6 +151,35 @@ describe("UserService", () => {
 
       expect(users).toEqual(fakeUsers);
       expect(prismaService.user.findMany).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("findOne", () => {
+    it("Should find a specific user", async () => {
+      const user = await userService.findOne("70031242546");
+
+      expect(user).toEqual(fakeUsers[0]);
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
+    });
+
+    it("Should throw an exception when find a non existent user", () => {
+      jest
+        .spyOn(prismaService.user, "findUnique")
+        .mockRejectedValueOnce(new NotFoundException("User not found."));
+
+      expect(userService.findOne("70031242666")).rejects.toThrow(
+        NotFoundException
+      );
+    });
+
+    it("Should throw an exception when find a deleted user", () => {
+      jest
+        .spyOn(prismaService.user, "findUnique")
+        .mockRejectedValueOnce(new BadRequestException("User deleted."));
+
+      expect(userService.findOne("70031242546")).rejects.toThrow(
+        BadRequestException
+      );
     });
   });
 });
