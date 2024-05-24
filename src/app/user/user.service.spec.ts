@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { PrismaService } from "../../database/prisma.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserService } from "./user.service";
@@ -140,6 +141,38 @@ describe("UserService", () => {
       expect(user.name).toEqual(userToBeCreated.name);
       expect(user.birth).toBeInstanceOf(Date);
       expect(user.status).toEqual(Status.ACTIVE);
+      expect(prismaService.user.create).toHaveBeenCalledTimes(1);
+    });
+
+    it("Shouldn't create a duplicated user", async () => {
+      const prismaError = new PrismaClientKnownRequestError(
+        "Unique constraint failed on the constraint: `User_cpf_key`",
+        { clientVersion: "5.14.0", code: "P2002" }
+      );
+
+      jest
+        .spyOn(prismaService.user, "create")
+        .mockRejectedValueOnce(prismaError);
+
+      const userToBeCreated: UserCreateDTO = {
+        cpf: "70031242546",
+        name: "Test User 1",
+        birth: new Date(),
+        address: {
+          street: "Rua 4",
+          number: "4",
+          district: "Boa Vista",
+          city: "São Paulo",
+          state: "SP",
+          cep: "01046851"
+        },
+        status: "ACTIVE",
+        createdBy: "Admin"
+      };
+
+      expect(userService.create(userToBeCreated)).rejects.toThrow(
+        PrismaClientKnownRequestError
+      );
       expect(prismaService.user.create).toHaveBeenCalledTimes(1);
     });
   });
