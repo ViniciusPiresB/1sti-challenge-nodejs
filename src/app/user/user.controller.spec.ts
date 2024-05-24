@@ -102,4 +102,16 @@ describe("UserController", () => {
       expect(userServiceMock.findAll).toHaveBeenCalled();
     });
   });
+
+  describe("findOne", () => {
+    it("Should return a user", async () => {
+      const cpf = fakeUsersDTO[0].cpf;
+
+      const result = await userController.findOne(cpf);
+
+      expect(result).toEqual({ ...fakeUsersDTO[0], cpf });
+      expect(userServiceMock.findOne).toHaveBeenCalledWith(cpf);
+      expect(userServiceMock.findOne).toHaveBeenCalledTimes(1);
+    });
+  });
 });
