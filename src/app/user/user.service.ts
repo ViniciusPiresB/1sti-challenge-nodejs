@@ -42,11 +42,14 @@ export class UserService {
     }
 
     public async updateUser(cpf: string, userUpdateDTO: UserUpdateDTO) {
-        await this.getUser(cpf);
+        const user = await this.getUser(cpf);
 
         const updatedUser = await this.prismaService.user.update({
-            where: { cpf },
-            data: userUpdateDTO
+            where: user,
+            data: {
+                ...userUpdateDTO,
+                updatedAt: new Date().toISOString()
+            }
         })
 
         return this.convertToUserDTO(updatedUser);
