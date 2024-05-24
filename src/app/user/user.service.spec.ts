@@ -6,6 +6,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Status, User } from "@prisma/client";
 import { UserDTO } from "./dto/user.dto";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { UserUpdateDTO } from "./dto/user-update.dto";
 
 describe("UserService", () => {
   let userService: UserService;
@@ -178,6 +179,78 @@ describe("UserService", () => {
         .mockRejectedValueOnce(new BadRequestException("User deleted."));
 
       expect(userService.findOne("70031242546")).rejects.toThrow(
+        BadRequestException
+      );
+    });
+  });
+
+  describe("update", () => {
+    it("should update a user successfully", async () => {
+      const cpf = fakeUsers[0].cpf;
+
+      const userUpdateDTO: UserUpdateDTO = {
+        name: "Updated Test User",
+        status: Status.ACTIVE,
+        updatedBy: "Admin"
+      };
+
+      const result = await userService.updateUser(cpf, userUpdateDTO);
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { cpf }
+      });
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: fakeUsers[0],
+        data: { ...userUpdateDTO, updatedAt: expect.any(String) }
+      });
+      expect(result).toEqual(updatedFakeUser);
+    });
+
+    it("Shouldn't update a not found user", async () => {
+      const cpf = "39513525424";
+
+      const userUpdateDTO: UserUpdateDTO = {
+        name: "Updated Test User",
+        status: Status.ACTIVE,
+        updatedBy: "Admin"
+      };
+
+      jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
+
+      await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
+        NotFoundException
+      );
+    });
+
+    it("Shouldn't update a deleted user", async () => {
+      const deletedFakeUser: User = {
+        id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+        cpf: "70031242546",
+        name: "Deleted Test User",
+        birth: new Date(),
+        addressId: 23,
+        status: Status.DELETED,
+        createdAt: new Date(),
+        createdBy: "Admin",
+        updatedAt: new Date(),
+        updatedBy: "Admin",
+        deletedAt: new Date(),
+        deletedBy: "Admin"
+      };
+
+      const cpf = deletedFakeUser.cpf;
+
+      const userUpdateDTO: UserUpdateDTO = {
+        name: "Updated Test User",
+        status: Status.ACTIVE,
+        updatedBy: "Admin"
+      };
+
+      jest
+        .spyOn(prismaService.user, "findUnique")
+        .mockResolvedValue(deletedFakeUser);
+
+      await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
         BadRequestException
       );
     });
