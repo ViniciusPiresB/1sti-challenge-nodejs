@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/database/prisma.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserUpdateDTO } from "./dto/user-update.dto";
-import { User } from "@prisma/client";
+import { Status, User } from "@prisma/client";
 import { UserDTO } from "./dto/user.dto";
 
 @Injectable()
@@ -28,7 +28,15 @@ export class UserService {
     public async findAll() {
         const users = await this.prismaService.user.findMany();
 
-        const usersDTO = users.map(user => { return this.convertToUserDTO(user) });
+        const activeUsers = users.filter(user => { 
+            if(user.status == Status.ACTIVE) return true;
+
+            return false;
+         });
+
+        if(!activeUsers) return [];
+
+        const usersDTO = activeUsers.map(user => { return this.convertToUserDTO(user) });
 
         return usersDTO;
     }
