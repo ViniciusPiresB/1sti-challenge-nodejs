@@ -248,9 +248,76 @@ describe("UserService", () => {
 
       jest
         .spyOn(prismaService.user, "findUnique")
-        .mockResolvedValue(deletedFakeUser);
+        .mockResolvedValueOnce(deletedFakeUser);
 
       await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+  });
+
+  describe("remove", () => {
+    it("Should remove a user successfully", async () => {
+      const cpf = deletedFakeUser.cpf;
+
+      const deletedUser: User = {
+        id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+        cpf: "70031242546",
+        name: "Deleted Test User",
+        birth: deletedFakeUser.birth,
+        addressId: 23,
+        status: Status.DELETED,
+        createdAt: new Date(),
+        createdBy: "Admin",
+        updatedAt: new Date(),
+        updatedBy: "Admin",
+        deletedAt: new Date(),
+        deletedBy: "Admin"
+      };
+
+      jest
+        .spyOn(prismaService.user, "update")
+        .mockResolvedValueOnce(deletedUser);
+
+      const result = await userService.remove(cpf);
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { cpf }
+      });
+      expect(result).toEqual(deletedFakeUser);
+    });
+
+    it("Shouldn't remove a not found user", async () => {
+      const cpf = "46846246366";
+
+      jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
+
+      await expect(userService.remove(cpf)).rejects.toThrow(NotFoundException);
+    });
+
+    it("Shouldn't remove a deleted user", async () => {
+      const deletedUser: User = {
+        id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+        cpf: "70031242546",
+        name: "Deleted Test User",
+        birth: deletedFakeUser.birth,
+        addressId: 23,
+        status: Status.DELETED,
+        createdAt: new Date(),
+        createdBy: "Admin",
+        updatedAt: new Date(),
+        updatedBy: "Admin",
+        deletedAt: new Date(),
+        deletedBy: "Admin"
+      };
+
+      const cpf = deletedUser.cpf;
+
+      jest
+        .spyOn(prismaService.user, "findUnique")
+        .mockResolvedValueOnce(deletedUser);
+
+      await expect(userService.remove(cpf)).rejects.toThrow(
         BadRequestException
       );
     });
