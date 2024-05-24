@@ -3,18 +3,35 @@ import { UserDTO } from "./dto/user.dto";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { Test, TestingModule } from "@nestjs/testing";
+import { UserCreateDTO } from "./dto/user-create.dto";
 
 describe("UserController", () => {
   let userController: UserController;
   let userService: UserService;
 
-  const fakeUserDTO: UserDTO = {
-    id: Date.now().toString(),
-    cpf: "12345678910",
-    name: "Fake name",
-    birth: new Date(),
-    status: Status.ACTIVE
-  };
+  const fakeUsersDTO: UserDTO[] = [
+    {
+      id: Date.now().toString(),
+      cpf: "12345678910",
+      name: "Fake name 1",
+      birth: new Date(),
+      status: Status.ACTIVE
+    },
+    {
+      id: Date.now().toString(),
+      cpf: "12345678911",
+      name: "Fake name 2",
+      birth: new Date(),
+      status: Status.ACTIVE
+    },
+    {
+      id: Date.now().toString(),
+      cpf: "12345678912",
+      name: "Fake name 3",
+      birth: new Date(),
+      status: Status.ACTIVE
+    }
+  ];
 
   const userServiceMock = {
     create: jest.fn((userCreateDTO) => {
@@ -22,13 +39,13 @@ describe("UserController", () => {
     }),
     findAll: jest.fn().mockResolvedValue([]),
     findOne: jest.fn((cpf) => {
-      return { ...fakeUserDTO, cpf };
+      return { ...fakeUsersDTO[0], cpf };
     }),
     updateUser: jest.fn((cpf, dto) => {
-      return { ...fakeUserDTO, ...dto };
+      return { ...fakeUsersDTO[0], ...dto };
     }),
     remove: jest.fn((cpf) => {
-      return { ...fakeUserDTO, status: Status.DELETED };
+      return { ...fakeUsersDTO[0], status: Status.DELETED };
     })
   };
 
@@ -52,5 +69,27 @@ describe("UserController", () => {
 
   it("Should be defined", () => {
     expect(userController).toBeDefined();
+  });
+
+  describe("create", () => {
+    it("Should create a user", async () => {
+      const fakeUserCreateDTO: UserCreateDTO = {
+        ...fakeUsersDTO[0],
+        createdBy: "Admin",
+        address: {
+          street: "Rua 1",
+          number: "2",
+          district: "Boa Vista",
+          city: "São Paulo",
+          state: "SP",
+          cep: "01293404"
+        }
+      };
+
+      const result = await userController.create(fakeUserCreateDTO);
+
+      expect(result).toEqual({ id: expect.any(String), ...fakeUserCreateDTO });
+      expect(userService.create).toHaveBeenCalledWith(fakeUserCreateDTO);
+    });
   });
 });
