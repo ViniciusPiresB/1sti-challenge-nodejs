@@ -19,7 +19,6 @@ model User {
   name      String
   birth     DateTime
   address   Address?
-  addressId Int?
   status    Status    @default(ACTIVE)
   createdAt DateTime  @default(now())
   createdBy String

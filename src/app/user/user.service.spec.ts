@@ -7,10 +7,28 @@ import { Status, User } from "@prisma/client";
 import { UserDTO } from "./dto/user.dto";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UserUpdateDTO } from "./dto/user-update.dto";
+import { AddressDTO } from "../address/dto/address.dto";
+import { AddressService } from "../address/address.service";
+import { AddressUpdateDTO } from "../address/dto/address-update.dto";
 
 describe("UserService", () => {
   let userService: UserService;
   let prismaService: PrismaService;
+  let addressService: AddressService;
+
+  const fakeUser: User = {
+    id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+    cpf: "70031242546",
+    name: "Test User 1",
+    birth: new Date(),
+    status: Status.ACTIVE,
+    createdAt: new Date(),
+    createdBy: "Admin",
+    updatedAt: undefined,
+    updatedBy: undefined,
+    deletedAt: undefined,
+    deletedBy: undefined
+  };
 
   const fakeUsers: UserDTO[] = [
     {
@@ -44,6 +62,15 @@ describe("UserService", () => {
     status: Status.ACTIVE
   };
 
+  const fakeUserAddress: AddressDTO = {
+    street: "Fake street",
+    number: "S/N",
+    district: "Fake district",
+    city: "Fake city",
+    state: "Fake state",
+    cep: "Fake cep"
+  };
+
   const deletedFakeUser: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
@@ -63,13 +90,24 @@ describe("UserService", () => {
     }
   };
 
+  const addressServiceMock = {
+    updateAddressOfUser: jest.fn((userId, dto) => {
+      return { ...fakeUserAddress, ...dto };
+    })
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService, { provide: PrismaService, useValue: prismaMock }]
+      providers: [
+        UserService,
+        { provide: PrismaService, useValue: prismaMock },
+        { provide: AddressService, useValue: addressServiceMock }
+      ]
     }).compile();
 
     userService = module.get<UserService>(UserService);
     prismaService = module.get<PrismaService>(PrismaService);
+    addressService = module.get<AddressService>(AddressService);
   });
 
   afterEach(() => {
@@ -78,6 +116,8 @@ describe("UserService", () => {
     prismaMock.user.findFirst.mockClear();
     prismaMock.user.update.mockClear();
     prismaMock.user.delete.mockClear();
+    prismaMock.user.findUnique.mockClear();
+    prismaMock.user.findUnique.mockResolvedValue(fakeUsers[0]);
   });
 
   it("Should be defined", () => {
@@ -184,6 +224,56 @@ describe("UserService", () => {
     });
   });
 
+  describe("findUserWithAddress", () => {
+    it("Should find a specific user with address", async () => {
+      const fakeAddress = {
+        ...fakeUserAddress,
+        id: Date.now().toString(),
+        userId: fakeUser.id
+      };
+
+      const fakeUserWithAddress = {
+        ...fakeUser,
+        address: fakeAddress
+      };
+
+      jest
+        .spyOn(prismaService.user, "findUnique")
+        .mockResolvedValue(fakeUserWithAddress);
+
+      const cpf = fakeUsers[0].cpf;
+
+      const userWithAddress = await userService.findUserWithAddress(cpf);
+
+      expect(userWithAddress).toEqual({
+        ...fakeUsers[0],
+        address: fakeAddress
+      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("updateAddress", () => {
+    it("Should update an address", async () => {
+      const cpf = fakeUsers[0].cpf;
+
+      const addressUpdateDTO: AddressUpdateDTO = {
+        street: "Updated street",
+        city: "Updated city"
+      };
+
+      const result = await userService.updateAddress(cpf, addressUpdateDTO);
+
+      expect(result).toEqual({ ...fakeUserAddress, ...addressUpdateDTO });
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
+      expect(addressServiceMock.updateAddressOfUser).toHaveBeenCalledTimes(1);
+      expect(addressServiceMock.updateAddressOfUser).toHaveBeenCalledWith(
+        fakeUser.id,
+        addressUpdateDTO
+      );
+    });
+  });
+
   describe("update", () => {
     it("should update a user successfully", async () => {
       const cpf = fakeUsers[0].cpf;
@@ -228,7 +318,6 @@ describe("UserService", () => {
         cpf: "70031242546",
         name: "Deleted Test User",
         birth: new Date(),
-        addressId: 23,
         status: Status.DELETED,
         createdAt: new Date(),
         createdBy: "Admin",
@@ -265,7 +354,6 @@ describe("UserService", () => {
         cpf: "70031242546",
         name: "Deleted Test User",
         birth: deletedFakeUser.birth,
-        addressId: 23,
         status: Status.DELETED,
         createdAt: new Date(),
         createdBy: "Admin",
@@ -301,7 +389,6 @@ describe("UserService", () => {
         cpf: "70031242546",
         name: "Deleted Test User",
         birth: deletedFakeUser.birth,
-        addressId: 23,
         status: Status.DELETED,
         createdAt: new Date(),
         createdBy: "Admin",
