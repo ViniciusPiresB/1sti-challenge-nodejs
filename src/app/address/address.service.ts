@@ -7,16 +7,13 @@ import { AddressUpdateDTO } from "./dto/address-update.dto";
 
 @Injectable()
 export class AddressService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   public async updateAddressOfUser(
-    cpf: string,
+    userId: string,
     addressUpdateDTO: AddressUpdateDTO
   ) {
-    const addressOfUser = await this.findAddressByUser(cpf);
+    const addressOfUser = await this.findAddressByUser(userId);
 
     const updatedAddress = await this.prismaService.address.update({
       where: addressOfUser,
@@ -32,11 +29,9 @@ export class AddressService {
     return addresses;
   }
 
-  private async findAddressByUser(cpf: string) {
-    const user = await this.userService.findOne(cpf);
-
+  private async findAddressByUser(userId: string) {
     const address = await this.prismaService.address.findUnique({
-      where: { userId: user.id }
+      where: { userId }
     });
 
     if (!address) throw new NotFoundException("User not found.");
