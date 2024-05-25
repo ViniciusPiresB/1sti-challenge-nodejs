@@ -76,6 +76,7 @@ describe("UserController", () => {
     it("Should create a user", async () => {
       const fakeUserCreateDTO: UserCreateDTO = {
         ...fakeUsersDTO[0],
+        password: "1234",
         createdBy: "Admin",
         address: {
           street: "Rua 1",
