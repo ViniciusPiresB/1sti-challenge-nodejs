@@ -136,9 +136,9 @@ export class UserService {
   }
 
   private convertToUserDTO(user: User) {
-    const { id, cpf, name, birth, status } = user;
+    const { id, cpf, name, birth, status, typeUser } = user;
 
-    const userDTO: UserDTO = { id, cpf, name, birth, status };
+    const userDTO: UserDTO = { id, cpf, name, birth, status, typeUser };
 
     return userDTO;
   }

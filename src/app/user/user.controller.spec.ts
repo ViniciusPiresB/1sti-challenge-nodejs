@@ -15,6 +15,7 @@ describe("UserController", () => {
       id: Date.now().toString(),
       cpf: "12345678910",
       name: "Fake name 1",
+      typeUser: 0,
       birth: new Date(),
       status: Status.ACTIVE
     },
@@ -22,6 +23,7 @@ describe("UserController", () => {
       id: Date.now().toString(),
       cpf: "12345678911",
       name: "Fake name 2",
+      typeUser: 0,
       birth: new Date(),
       status: Status.ACTIVE
     },
@@ -29,6 +31,7 @@ describe("UserController", () => {
       id: Date.now().toString(),
       cpf: "12345678912",
       name: "Fake name 3",
+      typeUser: 0,
       birth: new Date(),
       status: Status.ACTIVE
     }
