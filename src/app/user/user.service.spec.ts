@@ -7,6 +7,8 @@ import { Status, User } from "@prisma/client";
 import { UserDTO } from "./dto/user.dto";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UserUpdateDTO } from "./dto/user-update.dto";
+import { AddressDTO } from "../address/dto/address.dto";
+import { AddressService } from "../address/address.service";
 
 describe("UserService", () => {
   let userService: UserService;
@@ -44,6 +46,15 @@ describe("UserService", () => {
     status: Status.ACTIVE
   };
 
+  const fakeUserAddress: AddressDTO = {
+    street: "Fake street",
+    number: "S/N",
+    district: "Fake district",
+    city: "Fake city",
+    state: "Fake state",
+    cep: "Fake cep"
+  };
+
   const deletedFakeUser: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
@@ -63,9 +74,19 @@ describe("UserService", () => {
     }
   };
 
+  const addressServiceMock = {
+    updateAddressOfUser: jest.fn((userId, dto) => {
+      return fakeUserAddress;
+    })
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService, { provide: PrismaService, useValue: prismaMock }]
+      providers: [
+        UserService,
+        { provide: PrismaService, useValue: prismaMock },
+        { provide: AddressService, useValue: addressServiceMock }
+      ]
     }).compile();
 
     userService = module.get<UserService>(UserService);
