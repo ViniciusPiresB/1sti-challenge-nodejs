@@ -116,6 +116,14 @@ export class UserService {
     return this.convertToUserDTO(deletedUser);
   }
 
+  public async getUserWithPassword(cpf: string) {
+    const user = await this.getUser(cpf);
+
+    const userDTO = this.convertToUserDTO(user);
+
+    return { ...userDTO, password: user.password };
+  }
+
   private async getUser(cpf: string) {
     const user = await this.prismaService.user.findUnique({ where: { cpf } });
 
