@@ -26,6 +26,12 @@ export class AddressService {
     return this.convertToAddressDTO(updatedAddress);
   }
 
+  public async findAll() {
+    const addresses = await this.prismaService.address.findMany();
+
+    return addresses;
+  }
+
   private async findAddressByUser(cpf: string) {
     const user = await this.userService.findOne(cpf);
 
