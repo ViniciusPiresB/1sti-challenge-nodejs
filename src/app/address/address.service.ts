@@ -28,7 +28,7 @@ export class AddressService {
     return addresses;
   }
 
-  private async findAddressByUser(userId: string) {
+  public async findAddressByUser(userId: string) {
     const address = await this.prismaService.address.findUnique({
       where: { userId }
     });

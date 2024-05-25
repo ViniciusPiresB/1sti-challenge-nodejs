@@ -65,4 +65,43 @@ describe("AddressService", () => {
     expect(addressService).toBeDefined();
     expect(prismaService).toBeDefined();
   });
+
+  describe("updateAddressOfUser", () => {
+    it("Should update an address of a user", async () => {
+      const addressUpdateDTO: AddressUpdateDTO = {
+        street: "Updated street"
+      };
+
+      const { id, userId, ...rest } = fakeAddresses[0];
+
+      const result = await addressService.updateAddressOfUser(
+        userId,
+        addressUpdateDTO
+      );
+
+      expect(result).toEqual({ ...rest, ...addressUpdateDTO });
+      expect(prismaService.address.update).toHaveBeenCalledTimes(1);
+      expect(prismaService.address.update).toHaveBeenCalledWith({
+        where: fakeAddresses[0],
+        data: addressUpdateDTO
+      });
+    });
+
+    it("Shouldn't update an address of a not found user", async () => {
+      jest
+        .spyOn(addressService, "findAddressByUser")
+        .mockRejectedValueOnce(new NotFoundException("User not found."));
+
+      const userId = fakeAddresses[0].userId;
+
+      const addressUpdateDTO: AddressUpdateDTO = {
+        street: "Updated street"
+      };
+
+      await expect(
+        addressService.updateAddressOfUser(userId, addressUpdateDTO)
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
 });
