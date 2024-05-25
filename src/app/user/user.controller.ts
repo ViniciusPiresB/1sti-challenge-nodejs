@@ -21,6 +21,11 @@ export class UserController {
     findOne(@Param("cpf") cpf: string) {
         return this.userService.findOne(cpf);
     }
+    
+    @Get("/address/:cpf")
+    findUserWithAddress(@Param("cpf") cpf: string) {
+        return this.userService.findUserWithAddress(cpf);
+    }
 
     @Patch(":cpf")
     update(@Param("cpf") cpf: string, @Body() userUpdateDTO: UserUpdateDTO) {
