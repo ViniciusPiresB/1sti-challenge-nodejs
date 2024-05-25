@@ -2,6 +2,8 @@ import { PrismaService } from "../../database/prisma.service";
 import { AddressService } from "./address.service";
 import { Address } from "@prisma/client";
 import { Test, TestingModule } from "@nestjs/testing";
+import { AddressUpdateDTO } from "./dto/address-update.dto";
+import { NotFoundException } from "@nestjs/common";
 
 describe("AddressService", () => {
   let addressService: AddressService;
@@ -104,4 +106,12 @@ describe("AddressService", () => {
     });
   });
 
+  describe("findAll", () => {
+    it("Should return all addresses", async () => {
+      const result = await addressService.findAll();
+
+      expect(result).toEqual(fakeAddresses);
+      expect(prismaService.address.findMany).toHaveBeenCalledTimes(1);
+    });
+  });
 });
