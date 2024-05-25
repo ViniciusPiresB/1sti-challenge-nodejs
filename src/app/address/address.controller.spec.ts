@@ -66,4 +66,14 @@ describe("AddressController", () => {
   it("Should be defined", () => {
     expect(addressController).toBeDefined();
   });
+
+  describe("findAll", () => {
+    it("Should list all addresses", async () => {
+      const result = await addressController.findAll();
+
+      expect(result).toEqual(fakeAddresses);
+      expect(addressService.findAll).toHaveBeenCalledTimes(1);
+    });
+  });
+
 });
