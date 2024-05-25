@@ -22,7 +22,7 @@ export class UserService {
   public async create(userCreateDTO: UserCreateDTO) {
     const { address, ...user } = userCreateDTO;
 
-    userCreateDTO.password = hashSync(userCreateDTO.password, 10);
+    user.password = hashSync(userCreateDTO.password, 10);
 
     const createdUser = await this.prismaService.user.create({
       data: { ...user, address: { create: address } }
