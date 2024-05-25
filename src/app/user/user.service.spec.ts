@@ -9,10 +9,12 @@ import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { UserUpdateDTO } from "./dto/user-update.dto";
 import { AddressDTO } from "../address/dto/address.dto";
 import { AddressService } from "../address/address.service";
+import { AddressUpdateDTO } from "../address/dto/address-update.dto";
 
 describe("UserService", () => {
   let userService: UserService;
   let prismaService: PrismaService;
+  let addressService: AddressService;
 
   const fakeUser: User = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
@@ -90,7 +92,7 @@ describe("UserService", () => {
 
   const addressServiceMock = {
     updateAddressOfUser: jest.fn((userId, dto) => {
-      return fakeUserAddress;
+      return { ...fakeUserAddress, ...dto };
     })
   };
 
@@ -105,6 +107,7 @@ describe("UserService", () => {
 
     userService = module.get<UserService>(UserService);
     prismaService = module.get<PrismaService>(PrismaService);
+    addressService = module.get<AddressService>(AddressService);
   });
 
   afterEach(() => {
@@ -247,6 +250,27 @@ describe("UserService", () => {
         address: fakeAddress
       });
       expect(prismaService.user.findUnique).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("updateAddress", () => {
+    it("Should update an address", async () => {
+      const cpf = fakeUsers[0].cpf;
+
+      const addressUpdateDTO: AddressUpdateDTO = {
+        street: "Updated street",
+        city: "Updated city"
+      };
+
+      const result = await userService.updateAddress(cpf, addressUpdateDTO);
+
+      expect(result).toEqual({ ...fakeUserAddress, ...addressUpdateDTO });
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
+      expect(addressServiceMock.updateAddressOfUser).toHaveBeenCalledTimes(1);
+      expect(addressServiceMock.updateAddressOfUser).toHaveBeenCalledWith(
+        fakeUser.id,
+        addressUpdateDTO
+      );
     });
   });
 
