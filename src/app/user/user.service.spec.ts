@@ -14,6 +14,20 @@ describe("UserService", () => {
   let userService: UserService;
   let prismaService: PrismaService;
 
+  const fakeUser: User = {
+    id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+    cpf: "70031242546",
+    name: "Test User 1",
+    birth: new Date(),
+    status: Status.ACTIVE,
+    createdAt: new Date(),
+    createdBy: "Admin",
+    updatedAt: undefined,
+    updatedBy: undefined,
+    deletedAt: undefined,
+    deletedBy: undefined
+  };
+
   const fakeUsers: UserDTO[] = [
     {
       id: "a3718843-5456-4482-9c97-a20f78cbd44e",
