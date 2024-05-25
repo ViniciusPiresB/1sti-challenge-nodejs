@@ -76,4 +76,26 @@ describe("AddressController", () => {
     });
   });
 
+  describe("updateAddressOfUser", () => {
+    it("Should update an address of an user", async () => {
+      const cpf = Date.now().toString();
+
+      const addressUpdateDTO: AddressUpdateDTO = {
+        street: "Updated street",
+        number: "143"
+      };
+
+      const result = await addressController.updateAddressOfUser(
+        cpf,
+        addressUpdateDTO
+      );
+
+      expect(result).toEqual({ ...fakeAddressesDTO[0], ...addressUpdateDTO });
+      expect(addressServiceMock.updateAddressOfUser).toHaveBeenCalledWith(
+        cpf,
+        addressUpdateDTO
+      );
+      expect(addressServiceMock.updateAddressOfUser).toHaveBeenCalledTimes(1);
+    });
+  });
 });
