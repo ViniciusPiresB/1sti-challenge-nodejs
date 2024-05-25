@@ -4,7 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserService } from "../user/user.service";
 import { Status } from "@prisma/client";
 
-jest.mock("../utils/validatePassword");
+jest.mock("../utils/validate-password");
 
 describe("AuthService", () => {
   let authService: AuthService;
@@ -41,5 +41,11 @@ describe("AuthService", () => {
     authService = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
     jwtService = module.get<JwtService>(JwtService);
+  });
+
+  it("Should be defined", () => {
+    expect(authService).toBeDefined();
+    expect(userService).toBeDefined();
+    expect(jwtService).toBeDefined();
   });
 });
