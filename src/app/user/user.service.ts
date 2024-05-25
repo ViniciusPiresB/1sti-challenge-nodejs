@@ -57,6 +57,14 @@ export class UserService {
         return this.convertToUserDTO(updatedUser);
     }
 
+    public async updateAddress(cpf: string, addressUpdateDTO: AddressUpdateDTO) {
+        const user = await this.getUser(cpf);
+
+        const updatedAddress = await this.addressService.updateAddressOfUser(user.id, addressUpdateDTO);
+
+        return updatedAddress;
+    }
+
     public async remove(cpf: string) {
         const user = await this.getUser(cpf);
 
