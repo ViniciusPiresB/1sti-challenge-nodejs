@@ -27,6 +27,21 @@ export class UserService {
         return this.convertToUserDTO(user);
     }
 
+  public async findUserWithAddress(cpf: string) {
+    const user = await this.getUser(cpf);
+
+    const userWithAddress = await this.prismaService.user.findUnique({
+      where: user,
+      include: { address: true }
+    });
+
+    const userDTO = this.convertToUserDTO(user);
+
+    const result = { ...userDTO, address: userWithAddress.address };
+
+    return result;
+  }
+
     public async findAll() {
         const users = await this.prismaService.user.findMany();
 
