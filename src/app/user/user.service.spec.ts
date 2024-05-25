@@ -113,6 +113,8 @@ describe("UserService", () => {
     prismaMock.user.findFirst.mockClear();
     prismaMock.user.update.mockClear();
     prismaMock.user.delete.mockClear();
+    prismaMock.user.findUnique.mockClear();
+    prismaMock.user.findUnique.mockResolvedValue(fakeUsers[0]);
   });
 
   it("Should be defined", () => {
@@ -219,6 +221,35 @@ describe("UserService", () => {
     });
   });
 
+  describe("findUserWithAddress", () => {
+    it("Should find a specific user with address", async () => {
+      const fakeAddress = {
+        ...fakeUserAddress,
+        id: Date.now().toString(),
+        userId: fakeUser.id
+      };
+
+      const fakeUserWithAddress = {
+        ...fakeUser,
+        address: fakeAddress
+      };
+
+      jest
+        .spyOn(prismaService.user, "findUnique")
+        .mockResolvedValue(fakeUserWithAddress);
+
+      const cpf = fakeUsers[0].cpf;
+
+      const userWithAddress = await userService.findUserWithAddress(cpf);
+
+      expect(userWithAddress).toEqual({
+        ...fakeUsers[0],
+        address: fakeAddress
+      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe("update", () => {
     it("should update a user successfully", async () => {
       const cpf = fakeUsers[0].cpf;
@@ -263,7 +294,6 @@ describe("UserService", () => {
         cpf: "70031242546",
         name: "Deleted Test User",
         birth: new Date(),
-        addressId: 23,
         status: Status.DELETED,
         createdAt: new Date(),
         createdBy: "Admin",
@@ -300,7 +330,6 @@ describe("UserService", () => {
         cpf: "70031242546",
         name: "Deleted Test User",
         birth: deletedFakeUser.birth,
-        addressId: 23,
         status: Status.DELETED,
         createdAt: new Date(),
         createdBy: "Admin",
@@ -336,7 +365,6 @@ describe("UserService", () => {
         cpf: "70031242546",
         name: "Deleted Test User",
         birth: deletedFakeUser.birth,
-        addressId: 23,
         status: Status.DELETED,
         createdAt: new Date(),
         createdBy: "Admin",
