@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException
 } from "@nestjs/common";
+import { hashSync } from "bcrypt";
 import { PrismaService } from "../../database/prisma.service";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserUpdateDTO } from "./dto/user-update.dto";
@@ -20,6 +21,8 @@ export class UserService {
 
   public async create(userCreateDTO: UserCreateDTO) {
     const { address, ...user } = userCreateDTO;
+
+    user.password = hashSync(userCreateDTO.password, 10);
 
     const createdUser = await this.prismaService.user.create({
       data: { ...user, address: { create: address } }
@@ -70,6 +73,10 @@ export class UserService {
   public async updateUser(cpf: string, userUpdateDTO: UserUpdateDTO) {
     const user = await this.getUser(cpf);
 
+    if (userUpdateDTO.password) {
+      userUpdateDTO.password = hashSync(userUpdateDTO.password, 10);
+    }
+
     const updatedUser = await this.prismaService.user.update({
       where: user,
       data: {
@@ -109,6 +116,14 @@ export class UserService {
     return this.convertToUserDTO(deletedUser);
   }
 
+  public async getUserWithPassword(cpf: string) {
+    const user = await this.getUser(cpf);
+
+    const userDTO = this.convertToUserDTO(user);
+
+    return { ...userDTO, password: user.password };
+  }
+
   private async getUser(cpf: string) {
     const user = await this.prismaService.user.findUnique({ where: { cpf } });
 
@@ -121,9 +136,9 @@ export class UserService {
   }
 
   private convertToUserDTO(user: User) {
-    const { id, cpf, name, birth, status } = user;
+    const { id, cpf, name, birth, status, typeUser } = user;
 
-    const userDTO: UserDTO = { id, cpf, name, birth, status };
+    const userDTO: UserDTO = { id, cpf, name, birth, status, typeUser };
 
     return userDTO;
   }
