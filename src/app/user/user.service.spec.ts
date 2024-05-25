@@ -20,6 +20,8 @@ describe("UserService", () => {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
     name: "Test User 1",
+    typeUser: 0,
+    password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
     birth: new Date(),
     status: Status.ACTIVE,
     createdAt: new Date(),
@@ -36,6 +38,7 @@ describe("UserService", () => {
       cpf: "70031242546",
       name: "Test User 1",
       birth: new Date(),
+      typeUser: 0,
       status: Status.ACTIVE
     },
     {
@@ -43,6 +46,7 @@ describe("UserService", () => {
       cpf: "70031242547",
       name: "Test User 2",
       birth: new Date(),
+      typeUser: 0,
       status: Status.ACTIVE
     },
     {
@@ -50,6 +54,7 @@ describe("UserService", () => {
       cpf: "70031242548",
       name: "Test User 3",
       birth: new Date(),
+      typeUser: 0,
       status: Status.ACTIVE
     }
   ];
@@ -57,6 +62,7 @@ describe("UserService", () => {
   const updatedFakeUser: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
+    typeUser: 0,
     name: "Updated Test User",
     birth: new Date(),
     status: Status.ACTIVE
@@ -74,6 +80,7 @@ describe("UserService", () => {
   const deletedFakeUser: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
+    typeUser: 0,
     name: "Deleted Test User",
     birth: new Date(),
     status: Status.DELETED
@@ -130,6 +137,7 @@ describe("UserService", () => {
       const userToBeCreated: UserCreateDTO = {
         cpf: "70031242546",
         name: "Test User 1",
+        password: "1234",
         birth: new Date(),
         address: {
           street: "Rua 4",
@@ -166,6 +174,7 @@ describe("UserService", () => {
       const userToBeCreated: UserCreateDTO = {
         cpf: "70031242546",
         name: "Test User 1",
+        password: "1234",
         birth: new Date(),
         address: {
           street: "Rua 4",
@@ -317,6 +326,9 @@ describe("UserService", () => {
         id: "a3718843-5456-4482-9c97-a20f78cbd44e",
         cpf: "70031242546",
         name: "Deleted Test User",
+        typeUser: 0,
+        password:
+          "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
         birth: new Date(),
         status: Status.DELETED,
         createdAt: new Date(),
@@ -353,6 +365,9 @@ describe("UserService", () => {
         id: "a3718843-5456-4482-9c97-a20f78cbd44e",
         cpf: "70031242546",
         name: "Deleted Test User",
+        typeUser: 0,
+        password:
+          "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
         birth: deletedFakeUser.birth,
         status: Status.DELETED,
         createdAt: new Date(),
@@ -388,6 +403,9 @@ describe("UserService", () => {
         id: "a3718843-5456-4482-9c97-a20f78cbd44e",
         cpf: "70031242546",
         name: "Deleted Test User",
+        typeUser: 0,
+        password:
+          "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
         birth: deletedFakeUser.birth,
         status: Status.DELETED,
         createdAt: new Date(),

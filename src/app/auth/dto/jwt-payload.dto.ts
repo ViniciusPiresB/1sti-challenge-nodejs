@@ -1,10 +1,11 @@
 import { Status } from "@prisma/client";
 
-export class UserDTO {
+export type JwtPayload = {
   id: string;
   cpf: string;
   name: string;
-  birth: Date;
+  birth: string;
   status: Status;
   typeUser: number;
-}
+  iat: number;
+};
