@@ -21,9 +21,15 @@ import { JwtPayload } from "../auth/dto/jwt-payload.dto";
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Roles(...AdminRole)
   @Post()
-  create(@Body() userCreateDTO: UserCreateDTO) {
-    return this.userService.create(userCreateDTO);
+  create(
+    @Body() userCreateDTO: UserCreateDTO,
+    @GetUser() activeUser: JwtPayload
+  ) {
+    const activeUserCpf = activeUser.cpf;
+
+    return this.userService.create(userCreateDTO, activeUserCpf);
   }
 
   @Roles(...AdminRole)
@@ -58,25 +64,35 @@ export class UserController {
     @GetUser() user: JwtPayload,
     @Body() userUpdateDTO: UserUpdateDTO
   ) {
-    return this.userService.updateUser(user.cpf, userUpdateDTO);
+    const activeUserCpf = user.cpf;
+
+    return this.userService.updateUser(user.cpf, userUpdateDTO, activeUserCpf);
   }
 
   @Roles(...AdminRole)
   @Patch(":cpf")
-  update(@Param("cpf") cpf: string, @Body() userUpdateDTO: UserUpdateDTO) {
-    return this.userService.updateUser(cpf, userUpdateDTO);
+  update(
+    @Param("cpf") cpf: string,
+    @Body() userUpdateDTO: UserUpdateDTO,
+    @GetUser() activeUser: JwtPayload
+  ) {
+    const activeUserCpf = activeUser.cpf;
+
+    return this.userService.updateUser(cpf, userUpdateDTO, activeUserCpf);
   }
 
   @Delete()
   @UseGuards(JwtAuthGuard)
   @Roles(...UserRole)
   removeOneUser(@GetUser() user: JwtPayload) {
-    return this.userService.remove(user.cpf);
+    return this.userService.remove(user.cpf, user.cpf);
   }
 
   @Roles(...AdminRole)
   @Delete(":cpf")
-  remove(@Param("cpf") cpf: string) {
-    return this.userService.remove(cpf);
+  remove(@Param("cpf") cpf: string, @GetUser() activeUser: JwtPayload) {
+    const activeUserCpf = activeUser.cpf;
+
+    return this.userService.remove(cpf, activeUserCpf);
   }
 }
