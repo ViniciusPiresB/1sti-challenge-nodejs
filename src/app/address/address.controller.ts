@@ -1,13 +1,17 @@
-import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { AddressService } from "./address.service";
 import { AddressUpdateDTO } from "./dto/address-update.dto";
 import {
+  ApiBearerAuth,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags
 } from "@nestjs/swagger";
+import { Roles } from "../auth/decorator/roles.decorator";
+import { AdminRole } from "../auth/roles/roles";
+import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 
 @ApiTags("Address")
 @Controller("address")
@@ -19,6 +23,8 @@ export class AddressController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
+  @Roles(...AdminRole)
   @Get()
   findAll() {
     return this.addressService.findAll();
@@ -31,6 +37,9 @@ export class AddressController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
+  @Roles(...AdminRole)
+  @UseGuards(JwtAuthGuard)
   @Patch(":cpf")
   updateAddressOfUser(
     @Param("cpf") cpf: string,
