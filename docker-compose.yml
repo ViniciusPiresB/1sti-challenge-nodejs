@@ -13,6 +13,11 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
 
   nest-app:
     build: .
@@ -22,7 +27,8 @@ services:
     environment:
       - DATABASE_URL=mysql://username:password@mysql:3306/database
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
 volumes:
   mysql-data:
