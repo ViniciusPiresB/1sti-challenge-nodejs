@@ -84,25 +84,6 @@ export class UserController {
     return this.userService.findUserWithAddress(cpf);
   }
 
-  @Get("/address")
-  @UseGuards(JwtAuthGuard)
-  @Roles(...UserRole)
-  findOneUserWithAddress(@GetUser() user: JwtPayload) {
-    return this.userService.findUserWithAddress(user.cpf);
-  }
-
-  @Patch()
-  @UseGuards(JwtAuthGuard)
-  @Roles(...UserRole)
-  updateOneUser(
-    @GetUser() user: JwtPayload,
-    @Body() userUpdateDTO: UserUpdateDTO
-  ) {
-    const activeUserCpf = user.cpf;
-
-    return this.userService.updateUser(user.cpf, userUpdateDTO, activeUserCpf);
-  }
-
   @ApiOperation({ summary: "Update one user." })
   @ApiOkResponse({ description: "Update one user." })
   @ApiNotFoundResponse({ description: "User not found" })
