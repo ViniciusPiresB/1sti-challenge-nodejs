@@ -11,6 +11,7 @@ import { Status, User } from "@prisma/client";
 import { UserDTO } from "./dto/user.dto";
 import { AddressUpdateDTO } from "../address/dto/address-update.dto";
 import { AddressService } from "../address/address.service";
+import { JwtPayload } from "../auth/dto/jwt-payload.dto";
 
 @Injectable()
 export class UserService {
@@ -19,13 +20,17 @@ export class UserService {
     private readonly addressService: AddressService
   ) {}
 
-  public async create(userCreateDTO: UserCreateDTO) {
+  public async create(userCreateDTO: UserCreateDTO, activeUserCpf: string) {
     const { address, ...user } = userCreateDTO;
 
     user.password = hashSync(userCreateDTO.password, 10);
 
     const createdUser = await this.prismaService.user.create({
-      data: { ...user, address: { create: address } }
+      data: {
+        ...user,
+        address: { create: address },
+        createdBy: activeUserCpf
+      }
     });
 
     return this.convertToUserDTO(createdUser);
@@ -70,7 +75,11 @@ export class UserService {
     return usersDTO;
   }
 
-  public async updateUser(cpf: string, userUpdateDTO: UserUpdateDTO) {
+  public async updateUser(
+    cpf: string,
+    userUpdateDTO: UserUpdateDTO,
+    activeUserCpf: string
+  ) {
     const user = await this.getUser(cpf);
 
     if (userUpdateDTO.password) {
@@ -81,7 +90,8 @@ export class UserService {
       where: user,
       data: {
         ...userUpdateDTO,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        updatedBy: activeUserCpf
       }
     });
 
@@ -99,7 +109,7 @@ export class UserService {
     return updatedAddress;
   }
 
-  public async remove(cpf: string) {
+  public async remove(cpf: string, activeUserCpf: string) {
     const user = await this.getUser(cpf);
 
     const date = new Date().toISOString();
@@ -109,7 +119,7 @@ export class UserService {
       data: {
         status: Status.DELETED,
         deletedAt: date,
-        deletedBy: "FAZER AQUI JWT"
+        deletedBy: activeUserCpf
       }
     });
 

@@ -32,12 +32,60 @@ describe("UserService", () => {
     deletedBy: undefined
   };
 
-  const fakeUsers: UserDTO[] = [
+  const fakeUsers: User[] = [
     {
       id: "a3718843-5456-4482-9c97-a20f78cbd44e",
       cpf: "70031242546",
       name: "Test User 1",
+      password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
       birth: new Date(),
+      typeUser: 0,
+      status: Status.ACTIVE,
+      createdAt: new Date(),
+      createdBy: "Admin",
+      updatedAt: undefined,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined
+    },
+    {
+      id: "a3718843-5456-4482-9c97-a20f78cbd45t",
+      cpf: "70031242547",
+      name: "Test User 2",
+      password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+      birth: new Date(),
+      typeUser: 0,
+      status: Status.ACTIVE,
+      createdAt: new Date(),
+      createdBy: "Admin",
+      updatedAt: undefined,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined
+    },
+    {
+      id: "a3718843-5456-4482-9c97-a20f78cbd48o",
+      cpf: "70031242548",
+      name: "Test User 3",
+      password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+      birth: new Date(),
+      typeUser: 0,
+      status: Status.ACTIVE,
+      createdAt: new Date(),
+      createdBy: "Admin",
+      updatedAt: undefined,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined
+    }
+  ];
+
+  const fakeUsersDTO: UserDTO[] = [
+    {
+      id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+      cpf: "70031242546",
+      name: "Test User 1",
+      birth: fakeUsers[0].birth,
       typeUser: 0,
       status: Status.ACTIVE
     },
@@ -59,7 +107,23 @@ describe("UserService", () => {
     }
   ];
 
-  const updatedFakeUser: UserDTO = {
+  const updatedFakeUser: User = {
+    id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+    cpf: "70031242546",
+    typeUser: 0,
+    name: "Updated Test User",
+    password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+    birth: new Date(),
+    status: Status.ACTIVE,
+    createdAt: new Date(),
+    createdBy: "Admin",
+    updatedAt: new Date(),
+    updatedBy: "Admin",
+    deletedAt: undefined,
+    deletedBy: undefined
+  };
+
+  const updatedFakeUserDTO: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
     typeUser: 0,
@@ -77,7 +141,23 @@ describe("UserService", () => {
     cep: "Fake cep"
   };
 
-  const deletedFakeUser: UserDTO = {
+  const deletedFakeUser: User = {
+    id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+    cpf: "70031242546",
+    typeUser: 0,
+    name: "Deleted Test User",
+    password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+    birth: new Date(),
+    status: Status.DELETED,
+    createdAt: new Date(),
+    createdBy: "Admin",
+    updatedAt: new Date(),
+    updatedBy: "Admin",
+    deletedAt: new Date(),
+    deletedBy: "Admin"
+  };
+
+  const deletedFakeUserDTO: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
     typeUser: 0,
@@ -147,11 +227,13 @@ describe("UserService", () => {
           state: "SP",
           cep: "01046851"
         },
-        status: "ACTIVE",
-        createdBy: "Admin"
+        status: "ACTIVE"
       };
 
-      const user = await userService.create(userToBeCreated);
+      const user = await userService.create(
+        userToBeCreated,
+        userToBeCreated.cpf
+      );
 
       expect(user.id).toBeDefined();
       expect(user.cpf).toEqual(userToBeCreated.cpf);
@@ -184,13 +266,12 @@ describe("UserService", () => {
           state: "SP",
           cep: "01046851"
         },
-        status: "ACTIVE",
-        createdBy: "Admin"
+        status: "ACTIVE"
       };
 
-      expect(userService.create(userToBeCreated)).rejects.toThrow(
-        PrismaClientKnownRequestError
-      );
+      expect(
+        userService.create(userToBeCreated, userToBeCreated.cpf)
+      ).rejects.toThrow(PrismaClientKnownRequestError);
       expect(prismaService.user.create).toHaveBeenCalledTimes(1);
     });
   });
@@ -199,7 +280,7 @@ describe("UserService", () => {
     it("Should list all users successfully", async () => {
       const users = await userService.findAll();
 
-      expect(users).toEqual(fakeUsers);
+      expect(users).toEqual(fakeUsersDTO);
       expect(prismaService.user.findMany).toHaveBeenCalledTimes(1);
     });
   });
@@ -208,7 +289,7 @@ describe("UserService", () => {
     it("Should find a specific user", async () => {
       const user = await userService.findOne("70031242546");
 
-      expect(user).toEqual(fakeUsers[0]);
+      expect(user).toEqual(fakeUsersDTO[0]);
       expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
     });
 
@@ -255,7 +336,7 @@ describe("UserService", () => {
       const userWithAddress = await userService.findUserWithAddress(cpf);
 
       expect(userWithAddress).toEqual({
-        ...fakeUsers[0],
+        ...fakeUsersDTO[0],
         address: fakeAddress
       });
       expect(prismaService.user.findUnique).toHaveBeenCalledTimes(2);
@@ -287,22 +368,27 @@ describe("UserService", () => {
     it("should update a user successfully", async () => {
       const cpf = fakeUsers[0].cpf;
 
-      const userUpdateDTO: UserUpdateDTO = {
+      const userUpdateDTO = {
         name: "Updated Test User",
         status: Status.ACTIVE,
-        updatedBy: "Admin"
+        updatedBy: "Admin",
+        password: "newPass"
       };
 
-      const result = await userService.updateUser(cpf, userUpdateDTO);
+      const result = await userService.updateUser(cpf, userUpdateDTO, cpf);
 
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { cpf }
       });
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: fakeUsers[0],
-        data: { ...userUpdateDTO, updatedAt: expect.any(String) }
+        data: {
+          ...userUpdateDTO,
+          updatedAt: expect.any(String),
+          updatedBy: cpf
+        }
       });
-      expect(result).toEqual(updatedFakeUser);
+      expect(result).toEqual(updatedFakeUserDTO);
     });
 
     it("Shouldn't update a not found user", async () => {
@@ -310,15 +396,14 @@ describe("UserService", () => {
 
       const userUpdateDTO: UserUpdateDTO = {
         name: "Updated Test User",
-        status: Status.ACTIVE,
-        updatedBy: "Admin"
+        status: Status.ACTIVE
       };
 
       jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
 
-      await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(
+        userService.updateUser(cpf, userUpdateDTO, cpf)
+      ).rejects.toThrow(NotFoundException);
     });
 
     it("Shouldn't update a deleted user", async () => {
@@ -343,17 +428,16 @@ describe("UserService", () => {
 
       const userUpdateDTO: UserUpdateDTO = {
         name: "Updated Test User",
-        status: Status.ACTIVE,
-        updatedBy: "Admin"
+        status: Status.ACTIVE
       };
 
       jest
         .spyOn(prismaService.user, "findUnique")
         .mockResolvedValueOnce(deletedFakeUser);
 
-      await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(
+        userService.updateUser(cpf, userUpdateDTO, cpf)
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -382,12 +466,12 @@ describe("UserService", () => {
         .spyOn(prismaService.user, "update")
         .mockResolvedValueOnce(deletedUser);
 
-      const result = await userService.remove(cpf);
+      const result = await userService.remove(cpf, cpf);
 
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { cpf }
       });
-      expect(result).toEqual(deletedFakeUser);
+      expect(result).toEqual(deletedFakeUserDTO);
     });
 
     it("Shouldn't remove a not found user", async () => {
@@ -395,7 +479,9 @@ describe("UserService", () => {
 
       jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
 
-      await expect(userService.remove(cpf)).rejects.toThrow(NotFoundException);
+      await expect(userService.remove(cpf, cpf)).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("Shouldn't remove a deleted user", async () => {
@@ -422,9 +508,23 @@ describe("UserService", () => {
         .spyOn(prismaService.user, "findUnique")
         .mockResolvedValueOnce(deletedUser);
 
-      await expect(userService.remove(cpf)).rejects.toThrow(
+      await expect(userService.remove(cpf, cpf)).rejects.toThrow(
         BadRequestException
       );
+    });
+  });
+
+  describe("getUserWithPassword", () => {
+    it("Should get a user with password", async () => {
+      const cpf = fakeUsers[0].cpf;
+
+      const result = await userService.getUserWithPassword(cpf);
+
+      expect(result).toEqual({
+        ...fakeUsersDTO[0],
+        password: fakeUsers[0].password
+      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
     });
   });
 });
