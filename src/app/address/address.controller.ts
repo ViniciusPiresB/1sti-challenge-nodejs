@@ -8,6 +8,8 @@ import {
   ApiOperation,
   ApiTags
 } from "@nestjs/swagger";
+import { Roles } from "../auth/decorator/roles.decorator";
+import { AdminRole } from "../auth/roles/roles";
 
 @ApiTags("Address")
 @Controller("address")
@@ -19,6 +21,7 @@ export class AddressController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @Roles(...AdminRole)
   @Get()
   findAll() {
     return this.addressService.findAll();
@@ -31,6 +34,7 @@ export class AddressController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @Roles(...AdminRole)
   @Patch(":cpf")
   updateAddressOfUser(
     @Param("cpf") cpf: string,
