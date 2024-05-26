@@ -17,6 +17,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { GetUser } from "../decorator/get-user.decorator";
 import { JwtPayload } from "../auth/dto/jwt-payload.dto";
 import {
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -37,6 +38,7 @@ export class UserController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
   @Roles(...AdminRole)
   @Post()
   create(
@@ -54,6 +56,7 @@ export class UserController {
     description: "Missing token or not enough permission."
   })
   @ApiOperation({ summary: "test" })
+  @ApiBearerAuth()
   @Roles(...AdminRole)
   @Get()
   findAll() {
@@ -66,6 +69,7 @@ export class UserController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
   @Roles(...AdminRole)
   @Get(":cpf")
   findOne(@Param("cpf") cpf: string) {
@@ -78,6 +82,7 @@ export class UserController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
   @Roles(...AdminRole)
   @Get("/address/:cpf")
   findUserWithAddress(@Param("cpf") cpf: string) {
@@ -90,6 +95,7 @@ export class UserController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
   @Roles(...AdminRole)
   @Patch(":cpf")
   update(
@@ -115,6 +121,7 @@ export class UserController {
   @ApiForbiddenResponse({
     description: "Missing token or not enough permission."
   })
+  @ApiBearerAuth()
   @Roles(...AdminRole)
   @Delete(":cpf")
   remove(@Param("cpf") cpf: string, @GetUser() activeUser: JwtPayload) {
