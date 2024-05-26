@@ -5,6 +5,7 @@ import { UserService } from "./user.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserCreateDTO } from "./dto/user-create.dto";
 import { UserUpdateDTO } from "./dto/user-update.dto";
+import { JwtPayload } from "../auth/dto/jwt-payload.dto";
 
 describe("UserController", () => {
   let userController: UserController;
@@ -75,6 +76,16 @@ describe("UserController", () => {
     expect(userController).toBeDefined();
   });
 
+  const fakeJwtPayload: JwtPayload = {
+    id: Date.now().toString(),
+    cpf: "12345678910",
+    name: "Admin",
+    birth: Date(),
+    status: Status.ACTIVE,
+    typeUser: 1,
+    iat: Date.now()
+  };
+
   describe("create", () => {
     it("Should create a user", async () => {
       const fakeUserCreateDTO: UserCreateDTO = {
@@ -91,10 +102,16 @@ describe("UserController", () => {
         }
       };
 
-      const result = await userController.create(fakeUserCreateDTO);
+      const result = await userController.create(
+        fakeUserCreateDTO,
+        fakeJwtPayload
+      );
 
       expect(result).toEqual({ id: expect.any(String), ...fakeUserCreateDTO });
-      expect(userServiceMock.create).toHaveBeenCalledWith(fakeUserCreateDTO);
+      expect(userServiceMock.create).toHaveBeenCalledWith(
+        fakeUserCreateDTO,
+        fakeJwtPayload.cpf
+      );
       expect(userServiceMock.create).toHaveBeenCalledTimes(1);
     });
   });
@@ -130,12 +147,17 @@ describe("UserController", () => {
         updatedBy: "Admin"
       };
 
-      const result = await userController.update(cpf, userUpdateDTO);
+      const result = await userController.update(
+        cpf,
+        userUpdateDTO,
+        fakeJwtPayload
+      );
 
       expect(result).toEqual({ ...fakeUsersDTO[0], ...userUpdateDTO });
       expect(userServiceMock.updateUser).toHaveBeenCalledWith(
         cpf,
-        userUpdateDTO
+        userUpdateDTO,
+        fakeJwtPayload.cpf
       );
       expect(userServiceMock.updateUser).toHaveBeenCalledTimes(1);
     });
@@ -145,10 +167,13 @@ describe("UserController", () => {
     it("Should remove a user", async () => {
       const cpf = fakeUsersDTO[0].cpf;
 
-      const result = await userController.remove(cpf);
+      const result = await userController.remove(cpf, fakeJwtPayload);
 
       expect(result).toEqual({ ...fakeUsersDTO[0], status: Status.DELETED });
-      expect(userServiceMock.remove).toHaveBeenCalledWith(cpf);
+      expect(userServiceMock.remove).toHaveBeenCalledWith(
+        cpf,
+        fakeJwtPayload.cpf
+      );
       expect(userServiceMock.remove).toHaveBeenCalledTimes(1);
     });
   });

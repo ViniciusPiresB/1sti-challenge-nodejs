@@ -231,7 +231,10 @@ describe("UserService", () => {
         createdBy: "Admin"
       };
 
-      const user = await userService.create(userToBeCreated);
+      const user = await userService.create(
+        userToBeCreated,
+        userToBeCreated.cpf
+      );
 
       expect(user.id).toBeDefined();
       expect(user.cpf).toEqual(userToBeCreated.cpf);
@@ -268,9 +271,9 @@ describe("UserService", () => {
         createdBy: "Admin"
       };
 
-      expect(userService.create(userToBeCreated)).rejects.toThrow(
-        PrismaClientKnownRequestError
-      );
+      expect(
+        userService.create(userToBeCreated, userToBeCreated.cpf)
+      ).rejects.toThrow(PrismaClientKnownRequestError);
       expect(prismaService.user.create).toHaveBeenCalledTimes(1);
     });
   });
@@ -367,20 +370,25 @@ describe("UserService", () => {
     it("should update a user successfully", async () => {
       const cpf = fakeUsers[0].cpf;
 
-      const userUpdateDTO: UserUpdateDTO = {
+      const userUpdateDTO = {
         name: "Updated Test User",
         status: Status.ACTIVE,
-        updatedBy: "Admin"
+        updatedBy: "Admin",
+        password: "newPass"
       };
 
-      const result = await userService.updateUser(cpf, userUpdateDTO);
+      const result = await userService.updateUser(cpf, userUpdateDTO, cpf);
 
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { cpf }
       });
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: fakeUsers[0],
-        data: { ...userUpdateDTO, updatedAt: expect.any(String) }
+        data: {
+          ...userUpdateDTO,
+          updatedAt: expect.any(String),
+          updatedBy: cpf
+        }
       });
       expect(result).toEqual(updatedFakeUserDTO);
     });
@@ -396,9 +404,9 @@ describe("UserService", () => {
 
       jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
 
-      await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(
+        userService.updateUser(cpf, userUpdateDTO, cpf)
+      ).rejects.toThrow(NotFoundException);
     });
 
     it("Shouldn't update a deleted user", async () => {
@@ -431,9 +439,9 @@ describe("UserService", () => {
         .spyOn(prismaService.user, "findUnique")
         .mockResolvedValueOnce(deletedFakeUser);
 
-      await expect(userService.updateUser(cpf, userUpdateDTO)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(
+        userService.updateUser(cpf, userUpdateDTO, cpf)
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -462,7 +470,7 @@ describe("UserService", () => {
         .spyOn(prismaService.user, "update")
         .mockResolvedValueOnce(deletedUser);
 
-      const result = await userService.remove(cpf);
+      const result = await userService.remove(cpf, cpf);
 
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { cpf }
@@ -475,7 +483,9 @@ describe("UserService", () => {
 
       jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
 
-      await expect(userService.remove(cpf)).rejects.toThrow(NotFoundException);
+      await expect(userService.remove(cpf, cpf)).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("Shouldn't remove a deleted user", async () => {
@@ -502,9 +512,23 @@ describe("UserService", () => {
         .spyOn(prismaService.user, "findUnique")
         .mockResolvedValueOnce(deletedUser);
 
-      await expect(userService.remove(cpf)).rejects.toThrow(
+      await expect(userService.remove(cpf, cpf)).rejects.toThrow(
         BadRequestException
       );
+    });
+  });
+
+  describe("getUserWithPassword", () => {
+    it("Should get a user with password", async () => {
+      const cpf = fakeUsers[0].cpf;
+
+      const result = await userService.getUserWithPassword(cpf);
+
+      expect(result).toEqual({
+        ...fakeUsersDTO[0],
+        password: fakeUsers[0].password
+      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
     });
   });
 });
