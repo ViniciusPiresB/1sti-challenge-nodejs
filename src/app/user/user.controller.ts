@@ -108,13 +108,6 @@ export class UserController {
     return this.userService.updateUser(cpf, userUpdateDTO, activeUserCpf);
   }
 
-  @Delete()
-  @UseGuards(JwtAuthGuard)
-  @Roles(...UserRole)
-  removeOneUser(@GetUser() user: JwtPayload) {
-    return this.userService.remove(user.cpf, user.cpf);
-  }
-
   @ApiOperation({ summary: "Remove one user." })
   @ApiOkResponse({ description: "Delete one user." })
   @ApiNotFoundResponse({ description: "User not found" })
