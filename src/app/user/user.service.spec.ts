@@ -85,7 +85,7 @@ describe("UserService", () => {
       id: "a3718843-5456-4482-9c97-a20f78cbd44e",
       cpf: "70031242546",
       name: "Test User 1",
-      birth: new Date(),
+      birth: fakeUsers[0].birth,
       typeUser: 0,
       status: Status.ACTIVE
     },
@@ -227,8 +227,7 @@ describe("UserService", () => {
           state: "SP",
           cep: "01046851"
         },
-        status: "ACTIVE",
-        createdBy: "Admin"
+        status: "ACTIVE"
       };
 
       const user = await userService.create(
@@ -267,8 +266,7 @@ describe("UserService", () => {
           state: "SP",
           cep: "01046851"
         },
-        status: "ACTIVE",
-        createdBy: "Admin"
+        status: "ACTIVE"
       };
 
       expect(
@@ -398,8 +396,7 @@ describe("UserService", () => {
 
       const userUpdateDTO: UserUpdateDTO = {
         name: "Updated Test User",
-        status: Status.ACTIVE,
-        updatedBy: "Admin"
+        status: Status.ACTIVE
       };
 
       jest.spyOn(prismaService.user, "findUnique").mockResolvedValueOnce(null);
@@ -431,8 +428,7 @@ describe("UserService", () => {
 
       const userUpdateDTO: UserUpdateDTO = {
         name: "Updated Test User",
-        status: Status.ACTIVE,
-        updatedBy: "Admin"
+        status: Status.ACTIVE
       };
 
       jest
