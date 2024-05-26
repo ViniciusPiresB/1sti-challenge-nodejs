@@ -91,7 +91,6 @@ describe("UserController", () => {
       const fakeUserCreateDTO: UserCreateDTO = {
         ...fakeUsersDTO[0],
         password: "1234",
-        createdBy: "Admin",
         address: {
           street: "Rua 1",
           number: "2",
@@ -143,8 +142,7 @@ describe("UserController", () => {
 
       const userUpdateDTO: UserUpdateDTO = {
         name: "Updated User",
-        birth: new Date(),
-        updatedBy: "Admin"
+        birth: new Date()
       };
 
       const result = await userController.update(
