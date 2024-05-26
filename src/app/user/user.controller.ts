@@ -16,11 +16,27 @@ import { AdminRole, UserRole } from "../auth/roles/roles";
 import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { GetUser } from "../decorator/get-user.decorator";
 import { JwtPayload } from "../auth/dto/jwt-payload.dto";
+import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags
+} from "@nestjs/swagger";
 
 @Controller("user")
+@ApiTags("User")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: "Creates a user." })
+  @ApiCreatedResponse({ description: "Created Successfully." })
+  @ApiConflictResponse({ description: "User already exist." })
+  @ApiForbiddenResponse({
+    description: "Missing token or not enough permission."
+  })
   @Roles(...AdminRole)
   @Post()
   create(
@@ -32,18 +48,36 @@ export class UserController {
     return this.userService.create(userCreateDTO, activeUserCpf);
   }
 
+  @ApiOperation({ summary: "List all users." })
+  @ApiOkResponse({ description: "List all users." })
+  @ApiForbiddenResponse({
+    description: "Missing token or not enough permission."
+  })
+  @ApiOperation({ summary: "test" })
   @Roles(...AdminRole)
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
+  @ApiOperation({ summary: "Find one user." })
+  @ApiOkResponse({ description: "Find one user." })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiForbiddenResponse({
+    description: "Missing token or not enough permission."
+  })
   @Roles(...AdminRole)
   @Get(":cpf")
   findOne(@Param("cpf") cpf: string) {
     return this.userService.findOne(cpf);
   }
 
+  @ApiOperation({ summary: "Find a user with address." })
+  @ApiOkResponse({ description: "Find one user with address." })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiForbiddenResponse({
+    description: "Missing token or not enough permission."
+  })
   @Roles(...AdminRole)
   @Get("/address/:cpf")
   findUserWithAddress(@Param("cpf") cpf: string) {
@@ -69,6 +103,12 @@ export class UserController {
     return this.userService.updateUser(user.cpf, userUpdateDTO, activeUserCpf);
   }
 
+  @ApiOperation({ summary: "Update one user." })
+  @ApiOkResponse({ description: "Update one user." })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiForbiddenResponse({
+    description: "Missing token or not enough permission."
+  })
   @Roles(...AdminRole)
   @Patch(":cpf")
   update(
@@ -88,6 +128,12 @@ export class UserController {
     return this.userService.remove(user.cpf, user.cpf);
   }
 
+  @ApiOperation({ summary: "Remove one user." })
+  @ApiOkResponse({ description: "Delete one user." })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiForbiddenResponse({
+    description: "Missing token or not enough permission."
+  })
   @Roles(...AdminRole)
   @Delete(":cpf")
   remove(@Param("cpf") cpf: string, @GetUser() activeUser: JwtPayload) {
