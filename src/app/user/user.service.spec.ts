@@ -32,7 +32,55 @@ describe("UserService", () => {
     deletedBy: undefined
   };
 
-  const fakeUsers: UserDTO[] = [
+  const fakeUsers: User[] = [
+    {
+      id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+      cpf: "70031242546",
+      name: "Test User 1",
+      password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+      birth: new Date(),
+      typeUser: 0,
+      status: Status.ACTIVE,
+      createdAt: new Date(),
+      createdBy: "Admin",
+      updatedAt: undefined,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined
+    },
+    {
+      id: "a3718843-5456-4482-9c97-a20f78cbd45t",
+      cpf: "70031242547",
+      name: "Test User 2",
+      password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+      birth: new Date(),
+      typeUser: 0,
+      status: Status.ACTIVE,
+      createdAt: new Date(),
+      createdBy: "Admin",
+      updatedAt: undefined,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined
+    },
+    {
+      id: "a3718843-5456-4482-9c97-a20f78cbd48o",
+      cpf: "70031242548",
+      name: "Test User 3",
+      password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+      birth: new Date(),
+      typeUser: 0,
+      status: Status.ACTIVE,
+      createdAt: new Date(),
+      createdBy: "Admin",
+      updatedAt: undefined,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined
+    }
+  ];
+
+  const fakeUsersDTO: UserDTO[] = [
     {
       id: "a3718843-5456-4482-9c97-a20f78cbd44e",
       cpf: "70031242546",
@@ -59,7 +107,23 @@ describe("UserService", () => {
     }
   ];
 
-  const updatedFakeUser: UserDTO = {
+  const updatedFakeUser: User = {
+    id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+    cpf: "70031242546",
+    typeUser: 0,
+    name: "Updated Test User",
+    password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+    birth: new Date(),
+    status: Status.ACTIVE,
+    createdAt: new Date(),
+    createdBy: "Admin",
+    updatedAt: new Date(),
+    updatedBy: "Admin",
+    deletedAt: undefined,
+    deletedBy: undefined
+  };
+
+  const updatedFakeUserDTO: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
     typeUser: 0,
@@ -77,7 +141,23 @@ describe("UserService", () => {
     cep: "Fake cep"
   };
 
-  const deletedFakeUser: UserDTO = {
+  const deletedFakeUser: User = {
+    id: "a3718843-5456-4482-9c97-a20f78cbd44e",
+    cpf: "70031242546",
+    typeUser: 0,
+    name: "Deleted Test User",
+    password: "$2b$10$w84T.DKBD5JY2qWPQlbv2uNoK8ud4rrHLwzyG/95z/ehTKl4wzIW.",
+    birth: new Date(),
+    status: Status.DELETED,
+    createdAt: new Date(),
+    createdBy: "Admin",
+    updatedAt: new Date(),
+    updatedBy: "Admin",
+    deletedAt: new Date(),
+    deletedBy: "Admin"
+  };
+
+  const deletedFakeUserDTO: UserDTO = {
     id: "a3718843-5456-4482-9c97-a20f78cbd44e",
     cpf: "70031242546",
     typeUser: 0,
@@ -199,7 +279,7 @@ describe("UserService", () => {
     it("Should list all users successfully", async () => {
       const users = await userService.findAll();
 
-      expect(users).toEqual(fakeUsers);
+      expect(users).toEqual(fakeUsersDTO);
       expect(prismaService.user.findMany).toHaveBeenCalledTimes(1);
     });
   });
@@ -208,7 +288,7 @@ describe("UserService", () => {
     it("Should find a specific user", async () => {
       const user = await userService.findOne("70031242546");
 
-      expect(user).toEqual(fakeUsers[0]);
+      expect(user).toEqual(fakeUsersDTO[0]);
       expect(prismaService.user.findUnique).toHaveBeenCalledTimes(1);
     });
 
@@ -255,7 +335,7 @@ describe("UserService", () => {
       const userWithAddress = await userService.findUserWithAddress(cpf);
 
       expect(userWithAddress).toEqual({
-        ...fakeUsers[0],
+        ...fakeUsersDTO[0],
         address: fakeAddress
       });
       expect(prismaService.user.findUnique).toHaveBeenCalledTimes(2);
@@ -302,7 +382,7 @@ describe("UserService", () => {
         where: fakeUsers[0],
         data: { ...userUpdateDTO, updatedAt: expect.any(String) }
       });
-      expect(result).toEqual(updatedFakeUser);
+      expect(result).toEqual(updatedFakeUserDTO);
     });
 
     it("Shouldn't update a not found user", async () => {
@@ -387,7 +467,7 @@ describe("UserService", () => {
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { cpf }
       });
-      expect(result).toEqual(deletedFakeUser);
+      expect(result).toEqual(deletedFakeUserDTO);
     });
 
     it("Shouldn't remove a not found user", async () => {
