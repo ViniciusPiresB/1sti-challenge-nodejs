@@ -14,12 +14,6 @@ RUN npm install
 
 COPY . .
 
-COPY wait-for-mysql.sh /wait-for-mysql.sh
-
-RUN chmod +x /wait-for-mysql.sh
-
 EXPOSE 3000
 
-# Espera até que o MySQL esteja pronto antes de iniciar a aplicação
-CMD ["/bin/sh", "-c", "/wait-for-mysql.sh && npm run prisma:deploy && npm run build && node dist/main.js"]
-
+CMD ["ash", "-c", "npm run prisma:deploy && npm run build && node dist/main.js"]
