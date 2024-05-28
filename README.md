@@ -39,15 +39,24 @@ Para rodar a aplicação com Docker, siga os passos abaixo:
 
 Para rodar a aplicação sem Docker, siga os passos abaixo:
 
-    1. Configure as variáveis de ambiente no arquivo `.env` baseado no arquivo `.env.example`
-        1.1 Crie um arquivo chamado `.env` na raiz do seu projeto, se ele ainda não existir.
-        1.2 Abra o arquivo `.env` com um editor de texto e adicione as seguintes linhas:
-            DATABASE_URL="mysql://user:password@localhost:3306/db_name"
+    1. Tenha o docker instalado e rodando.
+    2. Execute o seguinte comando no terminal para criar o banco MySQL
+        docker run --name mysqlcontainer -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=backend-challenge -e MYSQL_USER=user -e MYSQL_PASSWORD=password -p 3306:3306 -d mysql:latest
+    3. Execute um push no banco de dados, execute o seguinte comando na pasta raiz do projeto:
+        npx prisma db push
+    4. Configure as variáveis de ambiente no arquivo `.env` baseado no arquivo `.env.example`
+        4.1 Crie um arquivo chamado `.env` na raiz do seu projeto, se ele ainda não existir.
+        4.2 Abra o arquivo `.env` com um editor de texto e adicione as seguintes linhas:
+            DATABASE_URL="mysql://user:password@localhost:3306/backend-challenge"
             JWT_SECRET="sua_senha_secreta_para_gerar_tokens"
-        1.3 Substitua `user`, `password`, `localhost:3306` e `db_name` pelos valores correspondentes ao seu banco de dados MySQL.
 
-    2. Inicie a aplicação: `npm start`
-    3. Acesse a aplicação em `http://localhost:3000`
+    5. Inicie a aplicação: `npm start`
+    6. Acesse a aplicação em `http://localhost:3000`
+
+## Primeiro acesso
+
+Assim que a aplicação estiver em execução, acesse o endpoint http://localhost:3000/user/first-user/get para obter o primeiro usuário do sistema com privilégios máximos.
+A partir deste usuário, será possivel gerar tokens na rota de login para realizar todas as operações presentes na aplicação.
 
 ## Documentação Swagger
 
