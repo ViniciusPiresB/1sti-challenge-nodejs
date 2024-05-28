@@ -12,6 +12,7 @@ import { UserDTO } from "./dto/user.dto";
 import { AddressUpdateDTO } from "../address/dto/address-update.dto";
 import { AddressService } from "../address/address.service";
 import { JwtPayload } from "../auth/dto/jwt-payload.dto";
+import { UserType } from "./enum/user-type.enum";
 
 @Injectable()
 export class UserService {
@@ -34,6 +35,43 @@ export class UserService {
     });
 
     return this.convertToUserDTO(createdUser);
+  }
+
+  public async firstAccess() {
+    const user = await this.prismaService.user.findUnique({
+      where: { cpf: "66666666666" }
+    });
+
+    if (user)
+      throw new BadRequestException("First access user already created.");
+
+    const firstAccessUserDTO: UserCreateDTO = {
+      cpf: "66666666666",
+      name: "First access User",
+      password: "1234",
+      birth: new Date(),
+      address: {
+        street: "Rua 2",
+        number: "4",
+        district: "Boa Vista",
+        city: "São Paulo",
+        state: "SP",
+        cep: "01046851"
+      },
+      status: "ACTIVE"
+    };
+
+    const userDTO = await this.create(
+      firstAccessUserDTO,
+      firstAccessUserDTO.cpf
+    );
+
+    await this.prismaService.user.update({
+      where: { cpf: userDTO.cpf },
+      data: { typeUser: UserType.Root }
+    });
+
+    return userDTO;
   }
 
   public async findOne(cpf: string) {

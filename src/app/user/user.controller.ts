@@ -26,6 +26,7 @@ import {
   ApiOperation,
   ApiTags
 } from "@nestjs/swagger";
+import { LocalGuard } from "../auth/guards/local.guard";
 
 @Controller("user")
 @ApiTags("User")
@@ -121,5 +122,14 @@ export class UserController {
     const activeUserCpf = activeUser.cpf;
 
     return this.userService.remove(cpf, activeUserCpf);
+  }
+
+  @Get("/first-user/get")
+  async firstAccessUser() {
+    const user = await this.userService.firstAccess();
+
+    user["password"] = "1234";
+
+    return user;
   }
 }
